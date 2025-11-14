@@ -548,3 +548,23 @@ There's now a function available simply called use. Important to understand is t
 
 full text: 
 React 19 introduced a new way to work with asynchronous operations such as fetching data from an API. There's now a function available simply called use. Important to understand is that this is, despite its name, not a hook. It's just a function. So the rules of hooks don't apply here. It can be used anywhere inside the components function. Use expects a promise as a parameter, and it will return a result of the promise when it resolves. While the promise is in an unresolved state, which basically means it's still doing its work, the component will be put in a suspended state. The rendering will be paused until the promise resolves. Use has the potential to clean up the component's code. We can get rid of useEffect and the houses state and create a variable that captures the promise returned by fetch. With the then function present on the promise, two promises can be chained together. Note that this variable initially will be an unresolved promise. It is not awaited. Once it resolves, we can capture the result in the component with the use function. It is imported from the react library. In this case, the result is an array of houses. That can be used directly in the JSX. So that's a huge simplification of the code. The addHouse function tries to manipulate the houses state though, and that doesn't work any more. But it's totally okay after renaming the variable to put the result as the initial value of some state too. As mentioned, as long as the fetchHouses promise isn't resolved, the component will be in a suspended state, pausing rendering for it. In the App component that renders HouseList, a component called Suspense must now wrap the HouseList. It takes a full back prop, which is JSX, that will be rendered as long as the child components are in the suspended state. So with this, we have a nice loading indicator and code that is much cleaner. However, there's a problem. Right now the promise is created outside of the components function on the module level. It will be created just once for the entire lifecycle of the application. So when HouseList is rerendered or used elsewhere, the data will not be reloaded. Moving the creation of the promise inside the component doesn't work because now we're in an infinite loop. When the state changes, the component rerenders, which will create a new promise that will change the state. Right now there isn't a good solution for this, except for using an external library that supports the caching of promises or write caching logic yourself. Both options are outside the scope of this course, but for a good library that supports this, please look at TanStack Query. Because of the complexity involved, for now I'm reverting back to the code as it was before this clip.
+
+
+
+#### useMemo
+
+like React.memo we can use a memo hook, whoch memoize value in component
+the memeo hook:
+```javascript
+const result = timeConsumingCalculation(houses);
+```
+
+The memo hook could be handy to optimize the performance of your components. We've already seen that component output can be memoized, but values inside components can be too. Let's say a calculation has to be done involving the list of houses that is quite time‑consuming. We could put this line of code in our component, but now the calculation will be done on every rerender. And as we learned, rerenders can occur frequently. This will slow down the application. 
+
+```javascript
+const result = useMemo(()=>{
+    timeConsumingCalculation(houses);
+}, [houses])
+```
+
+To gain performance, we can memoize the value that is returned using the memo hook. The parameters of useMemo are very much like the ones from useEffect. The first parameter is a function that does the calculation. The calculation will occur when the component is first rendered and when houses changes because houses is in the dependency array. That is the second parameter. If the component is rerendered without a change to houses, useMemo will simply return the value that was calculated previously without running the function. So is it a good idea to just wrap any operation in a useMemo call? Doesn't hurt, right? Well, it does because of the overhead of the hook. Again, you should measure if this is really faster before putting it in.
