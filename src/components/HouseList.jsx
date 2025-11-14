@@ -1,25 +1,31 @@
-import HouseRow from './HouseRow'
-import HouseAddRow from './HouseAddRow'
-import { useEffect, useState } from 'react';
+import HouseRow from './HouseRow';
+import HouseAddRow from './HouseAddRow';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 
-const HouseList =() => {
+//tried to use tanstack for better use of the fetching data for houses but it is not working, maybe i should try with another URL other than "http://localhost:4000/house"
 
-    const [houses, setHouses] = useState([])
-    useEffect(()=>{
-        const fetchHouses = async () => {
-            const response = await fetch("http://localhost:4000/house")
-            const houses = await response.json()
-            setHouses(houses)
-        }
-        fetchHouses(); // we are calling the fucntion fetchHouses, before it was just declaring
-    },[])//if we dont put a dependency array at the end of useEffect like this there will be a infinit loop.  To make that happen, we can just specify an empty dependency array.
-    
+const fetchHouses = async () => {
+  console.log("Fetching houses...");
+  const response = await fetch("http://localhost:4000/house");
+  if (!response.ok) throw new Error("Failed to fetch houses");
+  return response.json();
+};
+const HouseList = () => {
+    const [houses, setHouses] = useState([]);
+
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ['houses'],
+        queryFn: fetchHouses,
+        onSuccess: (data) => setHouses(data),
+    });
+
     const addHouse = () => {
         setHouses([
             ...houses,
             {
-                id: houses.length+1,
+                id: houses.length + 1,
                 address: "32 Valley Way, New York",
                 country: "USA",
                 price: 1000000,
@@ -27,11 +33,14 @@ const HouseList =() => {
         ]);
     };
 
+    if (isLoading) return <div>Loading houses...</div>;
+    if (isError) return <div>Error loading houses.</div>;
+
     return (
         <>
             <div className="row mb-2">
                 <h5 className="themeFontColor text-center">
-                Houses currently on the market
+                    Houses currently on the market
                 </h5>
             </div>
             <table className="table table-hover">
@@ -43,13 +52,12 @@ const HouseList =() => {
                     </tr>
                 </thead>
                 <tbody>
-                    {/*only element directly inside the call need keys*/}
-                    {houses.map(h => <HouseRow key={h.id} house={h}/>)} 
+                    {houses.map(h => <HouseRow key={h.id} house={h} />)}
                 </tbody>
             </table>
-            {/* <HouseAddRow houses = {houses} setHouses={setHouses} />  here we are not using this add new row so if you want you can un comment it and comment the button element below adn delete the addHouse function above */}
+            {/* <HouseAddRow houses={houses} setHouses={setHouses} /> */}
             <button onClick={addHouse} className="btn btn-primary">
-                Add 
+                Add
             </button>
         </>
     );
