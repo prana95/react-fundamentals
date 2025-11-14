@@ -1,25 +1,26 @@
 import HouseRow from './HouseRow';
 import HouseAddRow from './HouseAddRow';
-import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-
-
-//tried to use tanstack for better use of the fetching data for houses but it is not working, maybe i should try with another URL other than "http://localhost:4000/house"
+import { useQuery } from '@tanstack/react-query';
 
 const fetchHouses = async () => {
-  console.log("Fetching houses...");
-  const response = await fetch("http://localhost:4000/house");
-  if (!response.ok) throw new Error("Failed to fetch houses");
-  return response.json();
+    const response = await fetch("http://localhost:4000/house");
+    if (!response.ok) throw new Error("Failed to fetch houses");
+    return response.json();
 };
-const HouseList = () => {
-    const [houses, setHouses] = useState([]);
 
+const HouseList = () => {
     const { data, isLoading, isError } = useQuery({
         queryKey: ['houses'],
         queryFn: fetchHouses,
-        onSuccess: (data) => setHouses(data),
     });
+
+    const [houses, setHouses] = useState([]);
+
+    // Sync query data into local state once it's loaded
+    if (data && houses.length === 0) {
+        setHouses(data);
+    }
 
     const addHouse = () => {
         setHouses([
