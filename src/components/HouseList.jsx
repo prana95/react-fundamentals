@@ -1,20 +1,13 @@
 import HouseRow from './HouseRow'
 import HouseAddRow from './HouseAddRow'
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 
+const fetchHouses = fetch("http://localhost:4000/house")
+        .then(r => r.json())
 
 const HouseList =() => {
-
-    const [houses, setHouses] = useState([])
-    useEffect(()=>{
-        const fetchHouses = async () => {
-            const response = await fetch("http://localhost:4000/house")
-            const houses = await response.json()
-            setHouses(houses)
-        }
-        fetchHouses(); // we are calling the fucntion fetchHouses, before it was just declaring
-    },[])//if we dont put a dependency array at the end of useEffect like this there will be a infinit loop.  To make that happen, we can just specify an empty dependency array.
-    
+    const houseResult = use(fetchHouses) // here we are using use key word to fetch the houses from the api
+    const [houses,setHouses] = useState(houseResult)
     const addHouse = () => {
         setHouses([
             ...houses,
