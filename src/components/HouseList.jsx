@@ -1,35 +1,20 @@
 import HouseRow from './HouseRow'
-import { useState } from 'react';
-const housesArray = [
-  {
-    id: 1,
-    address: "12 Valley of Kings, Geneva",
-    country: "Switzerland",
-    price: 900000,
-  },
-  {
-    id: 2,
-    address: "89 Road of Forks, Bern",
-    country: "Switzerland",
-    price: 500000,
-  },
-];
+import HouseAddRow from './HouseAddRow'
+import { useEffect, useState } from 'react';
 
 
 const HouseList =() => {
 
-    const [houses, setHouses] = useState(housesArray)
-    const addHouse = () =>{
-        setHouses([
-            ...houses,
-            {
-                id: 3,
-                address: "89 Test",
-                country: "France",
-                price: 500000,
-            }
-        ])
-    }
+    const [houses, setHouses] = useState([])
+    useEffect(()=>{
+        const fetchHouses = async () => {
+            const response = await fetch("http://localhost:4000/house")
+            const houses = await response.json()
+            setHouses(houses)
+        }
+        fetchHouses(); // we are calling the fucntion fetchHouses, before it was just declaring
+    },[])//if we dont put a dependency array at the end of useEffect like this there will be a infinit loop.  To make that happen, we can just specify an empty dependency array.
+    
     return (
         <>
             <div className="row mb-2">
@@ -50,9 +35,7 @@ const HouseList =() => {
                     {houses.map(h => <HouseRow key={h.id} house={h}/>)} 
                 </tbody>
             </table>
-            <button onClick={addHouse} className="btn btn-primary">
-                Add
-            </button>
+            <HouseAddRow houses = {houses} setHouses={setHouses} />
         </>
     );
 };
