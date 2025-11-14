@@ -15,6 +15,18 @@ const HouseList =() => {
         fetchHouses(); // we are calling the fucntion fetchHouses, before it was just declaring
     },[])//if we dont put a dependency array at the end of useEffect like this there will be a infinit loop.  To make that happen, we can just specify an empty dependency array.
     
+    const addHouse = () => {
+        setHouses([
+            ...houses,
+            {
+                id: houses.length+1,
+                address: "32 Valley Way, New York",
+                country: "USA",
+                price: 1000000,
+            },
+        ]);
+    };
+
     return (
         <>
             <div className="row mb-2">
@@ -35,7 +47,10 @@ const HouseList =() => {
                     {houses.map(h => <HouseRow key={h.id} house={h}/>)} 
                 </tbody>
             </table>
-            <HouseAddRow houses = {houses} setHouses={setHouses} />
+            {/* <HouseAddRow houses = {houses} setHouses={setHouses} />  here we are not using this add new row so if you want you can un comment it and comment the button element below adn delete the addHouse function above */}
+            <button onClick={addHouse} className="btn btn-primary">
+                Add 
+            </button>
         </>
     );
 };
